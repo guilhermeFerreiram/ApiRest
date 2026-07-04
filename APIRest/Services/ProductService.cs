@@ -97,7 +97,7 @@ public class ProductService(
         return productDto;
     }
 
-    public async Task<List<ProductDto>> GetByFilters(List<int> ids, List<string> names)
+    public async Task<List<ProductDto>> GetAll(List<int> ids, List<string> names)
     {
         var query = context.Products.AsQueryable();
 

@@ -7,7 +7,7 @@ namespace APIRest.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ProductController(IProductService productService) : ControllerBase
+    public class ProductsController(IProductService productService) : ControllerBase
     {
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ProductDto>> Get([FromRoute] int id)
@@ -18,9 +18,9 @@ namespace APIRest.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ProductDto>>> GetByFilters([FromQuery] List<int> ids, [FromQuery] List<string> names)
+        public async Task<ActionResult<List<ProductDto>>> GetAll([FromQuery] List<int> ids, [FromQuery] List<string> names)
         {
-            var products = await productService.GetByFilters(ids, names);
+            var products = await productService.GetAll(ids, names);
 
             return StatusCode((int)HttpStatusCode.OK, new BaseResponseDto<List<ProductDto>>(false, [], products));
         }
