@@ -34,15 +34,15 @@ public class ProductService(
             CreatedAt = DateTime.UtcNow, 
         };
 
-        await context.Products.AddAsync(productModel);
+        var x = await context.Products.AddAsync(productModel);
         await context.SaveChangesAsync();
 
         var productDto = new ProductDto()
         {
-            Id = productModel.Id,
-            Name = productModel.Name,
-            Value = productModel.Value,
-            CreatedAt = productModel.CreatedAt
+            Id = x.Entity.Id,
+            Name = x.Entity.Name,
+            Value = x.Entity.Value,
+            CreatedAt = x.Entity.CreatedAt
         };
 
         return productDto;
@@ -59,6 +59,8 @@ public class ProductService(
         product.DeletedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
+
+        memoryCache.Remove($"{productCacheKey}{id}");
     }
 
     public async Task<ProductDto> Get(int id)
@@ -134,6 +136,8 @@ public class ProductService(
         product.UpdatedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
+
+        memoryCache.Remove($"{productCacheKey}{id}");
     }
 
     public async Task Patch(int id, string? name, double? value)
@@ -149,5 +153,7 @@ public class ProductService(
         product.UpdatedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
+
+        memoryCache.Remove($"{productCacheKey}{id}");
     }
 }
