@@ -1,6 +1,6 @@
-﻿using System.Xml.Linq;
-using APIRest.Data;
+﻿using APIRest.Data;
 using APIRest.DTOs;
+using APIRest.Exceptions;
 using APIRest.Interfaces;
 using APIRest.Models;
 using Microsoft.EntityFrameworkCore;
@@ -11,11 +11,15 @@ public class ProductService(AppDbContext context) : IProductService
 {
     public async Task<ProductDto> Create(string name, double value)
     {
+        if (string.IsNullOrEmpty(name) || value < 0)
+            throw new BusinessRuleException("Os dados fornecidos não são válidos para criar um novo produto");
+
         var product = await context.Products
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Name == name && x.DeletedAt == null);
 
-        if (product is not null) throw new Exception("Já existe um produto com esse nome");
+        if (product is not null)
+            throw new DuplicateRegisterException("Já existe um produto com esse nome");
 
         var productModel = new Product()
         {
@@ -43,7 +47,8 @@ public class ProductService(AppDbContext context) : IProductService
         var product = await context.Products
             .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
 
-        if (product is null) throw new Exception($"Produto de id {id} não encontrado");
+        if (product is null)
+            throw new NotFoundException($"Produto de id {id} não encontrado");
 
         product.DeletedAt = DateTime.UtcNow;
 
@@ -56,7 +61,8 @@ public class ProductService(AppDbContext context) : IProductService
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
 
-        if (product is null) throw new Exception($"Produto de id {id} não encontrado");
+        if (product is null)
+            throw new NotFoundException($"Produto de id {id} não encontrado");
 
         var productDto = new ProductDto()
         {
@@ -101,7 +107,8 @@ public class ProductService(AppDbContext context) : IProductService
         var product = await context.Products
             .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
 
-        if (product is null) throw new Exception($"Produto de id {id} não encontrado");
+        if (product is null)
+            throw new NotFoundException($"Produto de id {id} não encontrado");
 
         product.Name = string.IsNullOrEmpty(name) ? product.Name : name;
         product.Value = value ?? product.Value;

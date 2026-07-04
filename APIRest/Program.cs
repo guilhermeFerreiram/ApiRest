@@ -1,4 +1,5 @@
 using APIRest.Data;
+using APIRest.ExceptionFilters;
 using APIRest.Interfaces;
 using APIRest.Services;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,10 @@ using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<CustomExceptionFilter>();
+});
 
 var connectionString = builder.Configuration.GetConnectionString("SqliteConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
