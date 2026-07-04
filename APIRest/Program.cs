@@ -1,8 +1,10 @@
+using APIRest.Interfaces;
+using APIRest.Services;
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 
