@@ -4,11 +4,17 @@ using APIRest.Exceptions;
 using APIRest.Interfaces;
 using APIRest.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace APIRest.Services;
 
-public class ProductService(AppDbContext context) : IProductService
+public class ProductService(
+    AppDbContext context,
+    IMemoryCache memoryCache
+) : IProductService
 {
+    private const string productCacheKey = "product-";
+
     public async Task<ProductDto> Create(string name, double value)
     {
         if (string.IsNullOrEmpty(name) || value < 0)
@@ -57,12 +63,25 @@ public class ProductService(AppDbContext context) : IProductService
 
     public async Task<ProductDto> Get(int id)
     {
-        var product = await context.Products
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+        var cacheKey = $"{productCacheKey}{id}";
 
-        if (product is null)
-            throw new NotFoundException($"Produto de id {id} não encontrado");
+        var foundInCache = memoryCache.TryGetValue(cacheKey, out Product? product);
+
+        if (!foundInCache || product is null)
+        {
+            product = await context.Products
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+
+            if (product is null)
+                throw new NotFoundException($"Produto de id {id} não encontrado");
+
+            var cacheOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
+                .SetSlidingExpiration(TimeSpan.FromMinutes(2));
+
+            memoryCache.Set(cacheKey, product, cacheOptions);
+        }
 
         var productDto = new ProductDto()
         {
