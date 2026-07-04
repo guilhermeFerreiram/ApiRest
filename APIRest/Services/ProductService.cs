@@ -121,7 +121,22 @@ public class ProductService(
         return productsDtos;
     }
 
-    public async Task Update(int id, string? name, double? value)
+    public async Task Update(int id, string name, double value)
+    {
+        var product = await context.Products
+            .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+
+        if (product is null)
+            throw new NotFoundException($"Produto de id {id} não encontrado");
+
+        product.Name = name;
+        product.Value = value;
+        product.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task Patch(int id, string? name, double? value)
     {
         var product = await context.Products
             .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);

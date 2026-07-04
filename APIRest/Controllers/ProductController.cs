@@ -34,9 +34,17 @@ namespace APIRest.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Update([FromRoute] int id, [FromQuery] string? name, [FromQuery] double? value)
+        public async Task<ActionResult> Update([FromRoute] int id, [FromQuery] string name, [FromQuery] double value)
         {
             await productService.Update(id, name, value);
+
+            return StatusCode((int)HttpStatusCode.NoContent);
+        }
+
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> Patch([FromRoute] int id, [FromQuery] string? name, [FromQuery] double? value)
+        {
+            await productService.Patch(id, name, value);
 
             return StatusCode((int)HttpStatusCode.NoContent);
         }
