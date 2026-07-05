@@ -18,11 +18,16 @@ namespace APIRest.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ProductDto>>> GetAll([FromQuery] List<int> ids, [FromQuery] List<string> names)
+        public async Task<ActionResult<PaginatedResponseDto<ProductDto>>> GetByFilters(
+            [FromQuery] int page,
+            [FromQuery] int pageSize,
+            [FromQuery] List<int> ids,
+            [FromQuery] List<string> names
+        )
         {
-            var products = await productService.GetAll(ids, names);
+            var paginatedProducts = await productService.GetByFilters(page, pageSize, ids, names);
 
-            return StatusCode((int)HttpStatusCode.OK, new BaseResponseDto<List<ProductDto>>(false, [], products));
+            return StatusCode((int)HttpStatusCode.OK, new BaseResponseDto<PaginatedResponseDto<ProductDto>>(false, [], paginatedProducts));
         }
 
         [HttpPost]

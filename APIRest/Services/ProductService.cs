@@ -97,11 +97,9 @@ public class ProductService(
         return productDto;
     }
 
-    public async Task<List<ProductDto>> GetAll(List<int> ids, List<string> names)
+    public async Task<PaginatedResponseDto<ProductDto>> GetByFilters(int page, int pageSize, List<int> ids, List<string> names)
     {
         var query = context.Products.AsQueryable();
-
-        query = query.Where(x => x.DeletedAt == null);
 
         if (ids is not null && ids.Count != 0)
             query = query.Where(x => ids.Contains(x.Id));
@@ -109,7 +107,17 @@ public class ProductService(
         if (names is not null && names.Count != 0)
             query = query.Where(x => names.Contains(x.Name));
 
-        var products = await query.ToListAsync();
+        query = query.Where(x => x.DeletedAt == null);
+
+        page = page <= 0 ? 1 : page;
+        pageSize = pageSize <= 0 ? 10 : pageSize;
+
+        var products = await query
+            .Skip(pageSize * (page - 1))
+            .Take(pageSize)
+            .ToListAsync();
+
+        var totalCount = await query.CountAsync();
 
         var productsDtos = products.Select(x => new ProductDto()
         {
@@ -120,7 +128,14 @@ public class ProductService(
             UpdatedAt = x.UpdatedAt
         }).ToList();
 
-        return productsDtos;
+        var paginatedResponse = new PaginatedResponseDto<ProductDto>
+        {
+            Page = page,
+            TotalCount = totalCount,
+            Itens = productsDtos,
+        };
+
+        return paginatedResponse;
     }
 
     public async Task Update(int id, string name, double value)
