@@ -23,7 +23,11 @@ public class CustomExceptionFilter(ILogger<CustomExceptionFilter> logger) : IExc
             friendlyMessage = businessException.Message;
         }
 
-        var response = new BaseResponseErrorDto([friendlyMessage]);
+        var response = new 
+        {
+            Title = friendlyMessage,
+            Status = statusCode,
+        };
 
         context.Result = new ObjectResult(response)
         {

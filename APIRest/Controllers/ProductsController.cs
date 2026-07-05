@@ -14,7 +14,7 @@ namespace APIRest.Controllers
         {
             var product = await productService.Get(id);
 
-            return StatusCode((int)HttpStatusCode.OK, new BaseResponseDto<ProductDto>(false, [], product));
+            return StatusCode((int)HttpStatusCode.OK, product);
         }
 
         [HttpGet]
@@ -27,7 +27,7 @@ namespace APIRest.Controllers
         {
             var paginatedProducts = await productService.GetByFilters(page, pageSize, ids, names);
 
-            return StatusCode((int)HttpStatusCode.OK, new BaseResponseDto<PaginatedResponseDto<ProductDto>>(false, [], paginatedProducts));
+            return StatusCode((int)HttpStatusCode.OK, paginatedProducts);
         }
 
         [HttpPost]
@@ -35,7 +35,7 @@ namespace APIRest.Controllers
         {
             var product = await productService.Create(name, value);
 
-            return StatusCode((int)HttpStatusCode.Created, new BaseResponseDto<ProductDto>(false, [], product));
+            return StatusCode((int)HttpStatusCode.Created, product);
         }
 
         [HttpPut("{id:int}")]
