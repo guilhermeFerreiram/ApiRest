@@ -171,4 +171,11 @@ public class ProductService(
 
         memoryCache.Remove($"{productCacheKey}{id}");
     }
+
+    public async Task<bool> Exists(int id)
+    {
+        var exists = await context.Products.AnyAsync(x => x.Id == id);
+
+        return exists;
+    }
 }

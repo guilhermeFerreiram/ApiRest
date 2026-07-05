@@ -1,6 +1,7 @@
 using System.Net;
 using APIRest.DTOs;
 using APIRest.Interfaces;
+using APIRest.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APIRest.Controllers
@@ -15,6 +16,16 @@ namespace APIRest.Controllers
             var product = await productService.Get(id);
 
             return StatusCode((int)HttpStatusCode.OK, product);
+        }
+
+        [HttpHead("{id:int}")]
+        public async Task<IActionResult> Head([FromRoute] int id)
+        {
+            var exists = await productService.Exists(id);
+
+            var statusCode = exists ? (int)HttpStatusCode.OK : (int)HttpStatusCode.NotFound;
+
+            return StatusCode(statusCode);
         }
 
         [HttpGet]
@@ -60,6 +71,22 @@ namespace APIRest.Controllers
             await productService.Delete(id);
 
             return StatusCode((int)HttpStatusCode.NoContent);
+        }
+
+        [HttpOptions]
+        public IActionResult OptionsCollection()
+        {
+            Response.Headers.Append("Allow", "GET, POST, OPTIONS");
+
+            return StatusCode((int)HttpStatusCode.OK);
+        }
+
+        [HttpOptions("{id:int}")]
+        public IActionResult OptionsItem()
+        {
+            Response.Headers.Append("Allow", "GET, HEAD, PUT, DELETE, OPTIONS");
+
+            return StatusCode((int)HttpStatusCode.OK);
         }
     }
 }

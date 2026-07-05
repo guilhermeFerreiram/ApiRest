@@ -10,4 +10,5 @@ public interface IProductService
     Task Update(int id, string name, double value);
     Task Patch(int id, string? name, double? value);
     Task Delete(int id);
+    Task<bool> Exists(int id);
 }
