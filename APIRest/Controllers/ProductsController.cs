@@ -1,7 +1,6 @@
 using System.Net;
 using APIRest.DTOs;
 using APIRest.Interfaces;
-using APIRest.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APIRest.Controllers
