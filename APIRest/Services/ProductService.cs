@@ -175,7 +175,7 @@ public class ProductService(
 
     public async Task<bool> Exists(int id)
     {
-        var exists = await context.Products.AnyAsync(x => x.Id == id);
+        var exists = await context.Products.AnyAsync(x => x.Id == id && x.DeletedAt == null);
 
         return exists;
     }
