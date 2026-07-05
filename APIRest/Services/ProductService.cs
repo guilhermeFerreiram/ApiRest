@@ -113,6 +113,7 @@ public class ProductService(
         pageSize = pageSize <= 0 ? 10 : pageSize;
 
         var products = await query
+            .OrderBy(x => x.Id)
             .Skip(pageSize * (page - 1))
             .Take(pageSize)
             .ToListAsync();
