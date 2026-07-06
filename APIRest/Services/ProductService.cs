@@ -10,7 +10,7 @@ namespace APIRest.Services;
 
 public class ProductService(
     AppDbContext context,
-    IMemoryCache memoryCache
+    ICacheService cacheService
 ) : IProductService
 {
     private const string productCacheKey = "product-";
@@ -60,16 +60,21 @@ public class ProductService(
 
         await context.SaveChangesAsync();
 
-        memoryCache.Remove($"{productCacheKey}{id}");
+        await cacheService.RemoveAsync($"{productCacheKey}{id}");
     }
 
     public async Task<ProductDto> Get(int id)
     {
+        Product? product;
+
         var cacheKey = $"{productCacheKey}{id}";
+        var productInCache = await cacheService.GetAsync<Product>(cacheKey);
 
-        var foundInCache = memoryCache.TryGetValue(cacheKey, out Product? product);
-
-        if (!foundInCache || product is null)
+        if (productInCache is not null)
+        {
+            product = productInCache;
+        }
+        else
         {
             product = await context.Products
                 .AsNoTracking()
@@ -78,11 +83,7 @@ public class ProductService(
             if (product is null)
                 throw new NotFoundException($"Produto de id {id} não encontrado");
 
-            var cacheOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
-                .SetSlidingExpiration(TimeSpan.FromMinutes(2));
-
-            memoryCache.Set(cacheKey, product, cacheOptions);
+            await cacheService.SetAsync(cacheKey, product, new TimeSpan(0, 5, 0));
         }
 
         var productDto = new ProductDto()
@@ -153,7 +154,7 @@ public class ProductService(
 
         await context.SaveChangesAsync();
 
-        memoryCache.Remove($"{productCacheKey}{id}");
+        await cacheService.RemoveAsync($"{productCacheKey}{id}");
     }
 
     public async Task Patch(int id, string? name, double? value)
@@ -170,7 +171,7 @@ public class ProductService(
 
         await context.SaveChangesAsync();
 
-        memoryCache.Remove($"{productCacheKey}{id}");
+        await cacheService.RemoveAsync($"{productCacheKey}{id}");
     }
 
     public async Task<bool> Exists(int id)
