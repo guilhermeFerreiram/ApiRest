@@ -15,6 +15,8 @@ Praticar o design de uma API REST do zero: modelagem de recursos, verbos HTTP, s
 ## Como rodar
 
 ```bash
+docker-compose up -d
+
 dotnet restore
 dotnet run --project APIRest
 ```
