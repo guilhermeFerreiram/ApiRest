@@ -12,17 +12,22 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<CustomExceptionFilter>();
 });
 
-var connectionString = builder.Configuration.GetConnectionString("SqliteConnection");
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
+var connectionString = builder.Configuration.GetConnectionString("PostgresConnection");
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICacheService, CacheService>();
 
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Rest API", Version = "v1" });
 });
 
-builder.Services.AddMemoryCache();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+    options.InstanceName = "ApiRest_";
+});
 
 var app = builder.Build();
 
